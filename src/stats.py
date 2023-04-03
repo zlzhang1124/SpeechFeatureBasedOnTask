@@ -42,10 +42,10 @@ def test_retest_icc(feat_file: str, icc_save_file: str):
         # 一次对每一个特征求ICC：targets为id号（同一个id有两次测验），raters为session测试时间点，ratings为特征值
         icc_all = pg.intraclass_corr(data=feat_pd, targets='id', raters='session',
                                      ratings=feat_name, nan_policy='omit')  # 若包含缺失值，则删除该样本再进行ICC
-        # 仅保留ICC(3,k):  average measurement, absolute agreement, 2-way mixed effects model
-        icc_3k = icc_all[icc_all['Type'] == 'ICC3k']
-        icc_3k.insert(0, 'Features', feat_name)
-        feat_icc_all = pd.concat([feat_icc_all, icc_3k])
+        # 仅保留ICC(2,k):  average measurement, absolute agreement, 2-way mixed effects model
+        icc = icc_all[icc_all['Type'] == 'ICC2k']
+        icc.insert(0, 'Features', feat_name)
+        feat_icc_all = pd.concat([feat_icc_all, icc])
     feat_icc = feat_icc_all.loc[:, ['Features', 'ICC', 'CI95%', 'F', 'df1', 'df2', 'pval']].reset_index(drop=True)
     feat_icc.to_csv(icc_save_file, index=False)
     return feat_icc
@@ -66,10 +66,10 @@ def test_retest_icc_gender(feat_file: str, icc_save_file: str):
             # 一次对每一个特征求ICC：targets为id号（同一个id有两次测验），raters为session测试时间点，ratings为特征值
             icc_all = pg.intraclass_corr(data=feat_pd[feat_pd['gender'] == gender],
                                          targets='id', raters='session', ratings=feat_name, nan_policy='omit')
-            # 仅保留ICC(3,k):  average measurement, absolute agreement, 2-way mixed effects model
-            icc_3k = icc_all[icc_all['Type'] == 'ICC3k']
-            icc_3k.insert(0, 'Features', feat_name)
-            feat_icc_all = pd.concat([feat_icc_all, icc_3k])
+            # 仅保留ICC(2,k):  average measurement, absolute agreement, 2-way mixed effects model
+            icc = icc_all[icc_all['Type'] == 'ICC2k']
+            icc.insert(0, 'Features', feat_name)
+            feat_icc_all = pd.concat([feat_icc_all, icc])
         feat_icc = feat_icc_all.loc[:, ['Features', 'ICC', 'CI95%', 'F', 'df1', 'df2', 'pval']].reset_index(drop=True)
         feat_icc_l.append(feat_icc)
     feat_icc_gender = pd.merge(feat_icc_l[0], feat_icc_l[1], on='Features', suffixes=('-F', '-M'))
